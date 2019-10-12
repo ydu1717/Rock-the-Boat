@@ -8,7 +8,7 @@
 
 import UIKit
 
-class WarterWave: UIView,UICollisionBehaviorDelegate {
+class WarterWave: UIView {
 
     let pathPadding     = 30
     let waveSpeed       = 6
@@ -22,22 +22,27 @@ class WarterWave: UIView,UICollisionBehaviorDelegate {
     var waveDisplaylink : CADisplayLink!
     var waveLayer : CAShapeLayer!
     var waveBoundaryPath : UIBezierPath!
-    
-    var dropView : UIView!
-    var dropView2 : UIView!
-    var dropView3 : UIView!
+
     var boot : UIImageView!
-    var fish : UIImageView!
+    
     var animator : UIDynamicAnimator!
     var push : UIPushBehavior!
     var grav : UIGravityBehavior!
     var coll : UICollisionBehavior!
  
+    private lazy var fish : UIImageView = {
+        let fish = UIImageView.init(frame: CGRect.zero)
+        fish.image = UIImage.init(named: "fish")
+        fish.tag = 101
+        fish.backgroundColor = UIColor.clear
+        return fish
+    }()
     
     override init(frame: CGRect) {
         super.init(frame: frame)
         self.waterWaveWidth  = Int(frame.size.width)
         self.waterWaveHeight = Int(frame.size.height/2)
+        self.addSubview(fish)
     }
     
     required init?(coder: NSCoder) {
@@ -56,6 +61,8 @@ extension WarterWave {
         coll.removeAllBoundaries()
         offsetX = offsetX + waveSpeed
         waveBoundaryPath = getgetCurrentWavePath()
+        waveLayer.path = waveBoundaryPath.cgPath
+        coll!.addBoundary(withIdentifier: NSString.init(string: "waveBoundary"), for: waveBoundaryPath)
     }
     
     func getgetCurrentWavePath() -> UIBezierPath {
@@ -83,9 +90,34 @@ extension WarterWave {
     }
     
     @objc func fishJump() -> Void{
+        fish.isHidden = false
+        fishFirstColl = false
         
+        fish.frame = CGRect.init(x: waterWaveWidth - pathPadding - 30, y: waterWaveHeight , width: 30, height: 30)
+        
+        let trackPath = UIBezierPath.init()
+        let startP = CGPoint.init(x: CGFloat(pathPadding) + fish.frame.size.width / 2, y: fish.center.y)
+        trackPath.move(to: startP)
+        trackPath.addQuadCurve(to: fish.center, controlPoint: CGPoint.init(x: (fish.center.x - startP.x)/2 + startP.x, y: fish.center.y - 100))
+        
+        let fishAnim = CAKeyframeAnimation.init(keyPath: "position")
+        fishAnim.path = trackPath.cgPath
+        fishAnim.rotationMode = .rotateAuto
+        fishAnim.timingFunction = CAMediaTimingFunction.init(controlPoints: 0.1, 0.4, 0.9, 0.6)
+        fishAnim.duration = 1
+        fishAnim.isRemovedOnCompletion = false
+        fishAnim.fillMode = .forwards
+        fish.layer.add(fishAnim, forKey: "fishAnim")
+        
+        animator = UIDynamicAnimator.init(referenceView: self)
+               
+        grav = UIGravityBehavior.init(items: [boot])
+        animator.addBehavior(grav)
+       
+        coll = UICollisionBehavior.init(items: [boot])
+        animator.addBehavior(coll)
     }
-    
+ 
 }
 
 extension WarterWave {
@@ -101,10 +133,19 @@ extension WarterWave {
         waveDisplaylink.add(to: RunLoop.main, forMode: RunLoop.Mode.common)
         
         boot = UIImageView.init(image: UIImage.init(named: "ship"))
-        boot.frame = CGRect.init(x: 20, y: 12, width: 20, height: 20)
+        boot.frame = CGRect.init(x: waterWaveWidth/2 - 40, y: waterWaveHeight/2, width: 20, height: 20)
         boot.tag = 100
         boot.backgroundColor = .clear
         self.addSubview(boot)
+        
+        let opacityAni = CABasicAnimation.init(keyPath: "opacity")
+        opacityAni.fromValue = NSNumber.init(value: 0.5)
+        opacityAni.toValue = NSNumber.init(value: 1)
+        opacityAni.duration = 2
+        opacityAni.fillMode = .forwards
+        opacityAni.repeatCount = HUGE
+        opacityAni.isRemovedOnCompletion = false
+        boot.layer.add(opacityAni, forKey: "opacityAnimation")
         
         animator = UIDynamicAnimator.init(referenceView: self)
         
@@ -112,7 +153,6 @@ extension WarterWave {
         animator.addBehavior(grav)
         
         coll = UICollisionBehavior.init(items: [boot])
-        coll.collisionDelegate = self
         animator.addBehavior(coll)
         
         Timer.scheduledTimer(timeInterval: 3, target: self, selector: #selector(fishJump), userInfo: nil, repeats: true)
