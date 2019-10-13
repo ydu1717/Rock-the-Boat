@@ -133,15 +133,15 @@ extension WarterWave {
         waveDisplaylink.add(to: RunLoop.main, forMode: RunLoop.Mode.common)
         
         boot = UIImageView.init(image: UIImage.init(named: "ship"))
-        boot.frame = CGRect.init(x: waterWaveWidth/2 - 40, y: waterWaveHeight/2, width: 20, height: 20)
+        boot.frame = CGRect.init(x: waterWaveWidth/2 - 40, y: waterWaveHeight/2, width: 40, height: 40)
         boot.tag = 100
         boot.backgroundColor = .clear
         self.addSubview(boot)
         
         let opacityAni = CABasicAnimation.init(keyPath: "opacity")
-        opacityAni.fromValue = NSNumber.init(value: 0.5)
+        opacityAni.fromValue = NSNumber.init(value: 0.3)
         opacityAni.toValue = NSNumber.init(value: 1)
-        opacityAni.duration = 4
+        opacityAni.duration = 3
         opacityAni.fillMode = .forwards
         opacityAni.repeatCount = HUGE
         opacityAni.isRemovedOnCompletion = false
