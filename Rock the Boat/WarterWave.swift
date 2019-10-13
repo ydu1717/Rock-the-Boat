@@ -141,7 +141,7 @@ extension WarterWave {
         let opacityAni = CABasicAnimation.init(keyPath: "opacity")
         opacityAni.fromValue = NSNumber.init(value: 0.5)
         opacityAni.toValue = NSNumber.init(value: 1)
-        opacityAni.duration = 2
+        opacityAni.duration = 4
         opacityAni.fillMode = .forwards
         opacityAni.repeatCount = HUGE
         opacityAni.isRemovedOnCompletion = false
