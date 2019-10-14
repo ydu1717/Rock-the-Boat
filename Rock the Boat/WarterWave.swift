@@ -1,10 +1,3 @@
-//
-//  WarterWave.swift
-//  Rock the Boat
-//
-//  Created by wxc on 2019/10/12.
-//  Copyright © 2019 wxc. All rights reserved.
-//
 
 import UIKit
 
