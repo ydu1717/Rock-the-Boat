@@ -54,6 +54,7 @@ class ViewController: UIViewController {
 extension ViewController {
     
     func initUI() -> Void {
+        view.backgroundColor = UIColor.white
         view.addSubview(self.start)
     }
     
